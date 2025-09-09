@@ -72,8 +72,31 @@ def criar_jogador(jogador_id: int, jogador: Jogador):
 
 @app.put("/atualizar/jogador/{jogador_id}")
 def atualizar_jogador(jogador_id: int, jogador: JogadorUpdate):
+    """
+    Atualiza os dados de um jogador existente.
+
+    Parâmetros:
+    jogador_id (int): ID do jogador a ser atualizado (passado na URL).
+    jogador (JogadorUpdate): Dados do jogador a serem atualizados (passados no corpo da requisição).
+
+    Retorna:
+    dict: Dados atualizados do jogador ou mensagem de erro caso o jogador não seja encontrado.
+    """
+    # Verifica se o jogador existe no dicionário
     if jogador_id not in jogadores:
         return {"Erro" : "Jogador não encontrado."}
+    # Atualiza o nome se fornecido
+    if jogador.nome != None:
+        jogadores[jogador_id]['nome'] = jogador.nome
+    # Atualiza a idade se fornecida
+    if jogador.idade != None:
+        jogadores[jogador_id]['idade'] = jogador.idade
+    # Atualiza o time se fornecido
+    if jogador.time != None:
+        jogadores[jogador_id]['time'] = jogador.time
+    # Retorna os dados atualizados do jogador
+    return jogadores[jogador_id]
+
 
 @app.delete("/deletar/jogador/{jogador_id}")
 def deletar_jogador(jogador_id: int):
