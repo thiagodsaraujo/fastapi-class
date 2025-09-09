@@ -1,7 +1,24 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import Optional
+
 
 # Create FastAPI instance
 app = FastAPI()
+
+# Pydantic Model - Definição do modelo de dados
+# Explicação: https://fastapi.tiangolo.com/tutorial/body/
+class Jogador(BaseModel):
+    nome: str
+    idade: int
+    time: str
+
+# Precisa de um BaseModel para funcionar a atualização e criação de jogadores
+class JogadorUpdate(BaseModel):
+    # Pode ser que queiramos atualizar apenas um campo, por isso todos são opcionais
+    nome: Optional[str] = None
+    idade: Optional[int] = None
+    time: Optional[str] = None
 
 jogadores = {
     1: {
@@ -24,7 +41,6 @@ jogadores = {
 # Define a root endpoint, rota principal
 @app.get("/")
 def inicio():
-    print("rota executada")
     return jogadores
 
 @app.get("/jogadores")
@@ -44,6 +60,29 @@ def retorno_jogador_time(time: str):
         if jogadores[jogador_id]["time"] == time:
             return jogadores[jogador_id]
     return {"mensagem": "Nenhum jogador encontrado para o time especificado."}
+
+@app.post("/cadastro/jogador/{jogador_id}")
+def criar_jogador(jogador_id: int, jogador: Jogador):
+    if jogador_id in jogadores:
+        return {"mensagem": "Jogador já existe."}
+    # Lista de Jogadores já existe acima
+    jogadores[jogador_id] = jogador
+    # Retorna o jogador criado na posição jogador_id
+    return jogadores[jogador_id]
+
+@app.put("/atualizar/jogador/{jogador_id}")
+def atualizar_jogador(jogador_id: int, jogador: JogadorUpdate):
+    if jogador_id not in jogadores:
+        return {"Erro" : "Jogador não encontrado."}
+
+@app.delete("/deletar/jogador/{jogador_id}")
+def deletar_jogador(jogador_id: int):
+    if jogador_id not in jogadores:
+        return {"Erro": "Jogador não encontrado."}
+    del jogadores[jogador_id]
+    return {"Success": "Jogador deletado com sucesso."}
+
+
 
 
 # Path Parameters - Explicação: https://fastapi.tiangolo.com/tutorial/path-params/
